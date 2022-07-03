@@ -1,46 +1,21 @@
 # Changelog
 
-## [v0.1.1](https://github.com/texpert/shrine-lambda/tree/v0.1.1) (2021-04-09)
+## [v0.1.2](https://github.com/texpert/shrine-aws-lambda/tree/v0.1.2) (2022-07-03)
 
-[Full Changelog](https://github.com/texpert/shrine-lambda/compare/v0.1.0...v0.1.1)
-
-**Merged pull requests:**
-
-- Add Gem Maintenance chapter, language labels to markdown code to README.md [\#20](https://github.com/texpert/shrine-lambda/pull/20) ([texpert](https://github.com/texpert))
-- Set post-install deprecation notice about renaming the gem, add version file [\#19](https://github.com/texpert/shrine-lambda/pull/19) ([texpert](https://github.com/texpert))
-- Fix uninitialized constant Shrine::Error when adding shrine-lambda to… [\#18](https://github.com/texpert/shrine-lambda/pull/18) ([texpert](https://github.com/texpert))
-
-## [v0.1.0](https://github.com/texpert/shrine-lambda/tree/v0.1.0) (2020-05-24)
-
-[Full Changelog](https://github.com/texpert/shrine-lambda/compare/v0.0.1...v0.1.0)
-
-**Breaking changes:**
-
-- BREAKING CHANGE: Uploader's `:lambda_process` method renamed to `:lambda_process_versions` [\#14](https://github.com/texpert/shrine-lambda/pull/14) ([texpert](https://github.com/texpert))
-
-**Implemented enhancements:**
-
-- Rubocop tuning and offences fixing [\#12](https://github.com/texpert/shrine-lambda/pull/12) ([texpert](https://github.com/texpert))
+[Full Changelog](https://github.com/texpert/shrine-aws-lambda/compare/88f53efc0436de444f438d36b8a831b4013f5778...v0.1.2)
 
 **Merged pull requests:**
 
-- Prepare the 0.1.0 release [\#16](https://github.com/texpert/shrine-lambda/pull/16) ([texpert](https://github.com/texpert))
-- Added github\_changelog\_generator as a development dependency [\#15](https://github.com/texpert/shrine-lambda/pull/15) ([texpert](https://github.com/texpert))
-- Release v. 0.0.1 [\#11](https://github.com/texpert/shrine-lambda/pull/11) ([texpert](https://github.com/texpert))
-- Prepairing for release. [\#10](https://github.com/texpert/shrine-lambda/pull/10) ([texpert](https://github.com/texpert))
-- Plugin documentation. [\#9](https://github.com/texpert/shrine-lambda/pull/9) ([texpert](https://github.com/texpert))
-- Comply with Shrine's `upload_options` plugin to be able to set ACL's … [\#8](https://github.com/texpert/shrine-lambda/pull/8) ([texpert](https://github.com/texpert))
-- Finalized and documented the authorization and saving methods.  [\#7](https://github.com/texpert/shrine-lambda/pull/7) ([texpert](https://github.com/texpert))
-- Fixed the class of `lambda_client`. [\#6](https://github.com/texpert/shrine-lambda/pull/6) ([texpert](https://github.com/texpert))
-- AWS session security token is now used to calculate request signature… [\#5](https://github.com/texpert/shrine-lambda/pull/5) ([texpert](https://github.com/texpert))
-- Authorization of Lambda requests to `callbackURL` implemented by calc… [\#4](https://github.com/texpert/shrine-lambda/pull/4) ([texpert](https://github.com/texpert))
-- `:lambda_process` methods implementation and `:configure` method refactoring [\#3](https://github.com/texpert/shrine-lambda/pull/3) ([texpert](https://github.com/texpert))
-- Fix of `:configure` and implementation of client and  `:lambda_function_list` methods. [\#2](https://github.com/texpert/shrine-lambda/pull/2) ([texpert](https://github.com/texpert))
-- Initial gem and plugin config [\#1](https://github.com/texpert/shrine-lambda/pull/1) ([texpert](https://github.com/texpert))
+- Initial, compatible with shrine-lambda, release [\#1](https://github.com/texpert/shrine-aws-lambda/pull/1) ([texpert](https://github.com/texpert))
 
-## [v0.0.1](https://github.com/texpert/shrine-lambda/tree/v0.0.1) (2018-02-12)
+## Changes:
 
-[Full Changelog](https://github.com/texpert/shrine-lambda/compare/803b40a03817943e5032c653742f90d811cdaff8...v0.0.1)
+- **Breaking:** Change gem name to shrine-aws-lambda
+- **Breaking:** Change class name from Shrine::Plugins::Lambda to Shrine::Plugins::AwsLambda
+- **Breaking:** Change plugin registration symbol from `:lambda` to `:aws_lambda`
+
+- Add `.tools-version` file and specified Ruby 2.7.6 version
+- Add rubocop-rspec and rubocop-performane as development dependencies and fix the arised issues
 
 
 
