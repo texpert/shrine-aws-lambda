@@ -10,7 +10,7 @@ module UploadersHelpers
     uploader.plugin :backgrounding
     uploader.plugin :aws_lambda, settings
 
-    uploader::Attacher.promote do |data|
+    uploader::Attacher.promote_block do |data|
       uploader::Attacher.lambda_process(data)
     end
 
