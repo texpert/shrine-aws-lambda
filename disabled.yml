@@ -1,0 +1,21 @@
+# These are all the cops that are disabled in the default configuration.
+
+Style/Documentation:
+  Description: 'Document classes and non-namespace modules.'
+  Enabled: false
+  Exclude:
+    - 'spec/**/*'
+    - 'test/**/*'
+
+Layout/CaseIndentation:
+  Description: 'Indentation of when in a case/when/[else/]end.'
+  StyleGuide: '#indent-when-to-case'
+  Enabled: false
+
+RSpec/AnyInstance:
+  Description: Check that instances are not being stubbed globally.
+  Enabled: false
+
+RSpec/StubbedMock:
+  Description: Checks that message expectations do not have a configured response.
+  Enabled: false
