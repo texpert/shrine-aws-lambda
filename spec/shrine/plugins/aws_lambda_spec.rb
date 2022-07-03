@@ -5,7 +5,7 @@ require 'spec_helper'
 require 'active_record'
 require 'shrine'
 require 'shrine/plugins/activerecord'
-require 'shrine/plugins/logging'
+require 'shrine/plugins/instrumentation'
 require 'shrine/storage/s3'
 require 'shrine/plugins/aws_lambda'
 
@@ -61,7 +61,7 @@ RSpec.describe Shrine::Plugins::AwsLambda do
 
       context 'when Shrine logger is enabled' do
         it 'logs the unsupported options' do
-          shrine.plugin :logging
+          shrine.plugin :instrumentation
 
           expect_logged("The :unknown_key option is not supported by the Lambda plugin\n", shrine) do
             shrine.plugin :aws_lambda, option
@@ -157,7 +157,7 @@ RSpec.describe Shrine::Plugins::AwsLambda do
       before do
         user.save!
 
-        allow(Shrine::Attacher).to receive(:load).and_call_original
+        allow(Shrine::Attacher).to receive(:from_data).and_call_original
       end
 
       context 'when signature in received headers matches locally computed AWS signature' do

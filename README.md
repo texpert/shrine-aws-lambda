@@ -137,7 +137,10 @@ end
 Shrine.plugin :activerecord
 Shrine.plugin :backgrounding
 Shrine.plugin :cached_attachment_data # for forms
-Shrine.plugin :logging, logger: Rails.logger
+
+Shrine.logger = Rails.logger
+Shrine.plugin :instrumentation
+
 Shrine.plugin :rack_file # for non-Rails apps
 Shrine.plugin :remote_url, max_size: 1.gigabyte
 
@@ -360,7 +363,7 @@ by the following command:
 $ gem build shrine-aws-lambda.gemspec
 ```
 
-Assuming the version was set to `0.1.2`, a `shrine-aws-lambda-0.1.2.gem` binary file will be generated at the root of 
+Assuming the version was set to `0.2.0`, a `shrine-aws-lambda-0.2.0.gem` binary file will be generated at the root of 
 the app (repo).
 
 - The binary file shouldn't be added into the `git` tree, it will be pushed into the RubyGems and to the GitHub releases
@@ -368,7 +371,7 @@ the app (repo).
 #### Pushing a new gem release to RubyGems
 
 ```bash
-$ gem push shrine-aws-lambda-0.1.2.gem # don't forget to specify the correct version number
+$ gem push shrine-aws-lambda-0.2.0.gem # don't forget to specify the correct version number
 ```
 
 #### Crafting the new release on GitHub
