@@ -17,7 +17,7 @@ Gem::Specification.new do |gem|
   DESC
   gem.license = 'MIT'
   gem.files        = Dir['CHANGELOG.md', 'README.md', 'LICENSE', 'lib/**/*.rb', '*.gemspec']
-  gem.require_path = 'lib/shrine/plugins'
+  gem.require_path = 'lib'
 
   gem.metadata = { 'bug_tracker_uri'       => 'https://github.com/texpert/shrine-aws-lambda/issues',
                    'changelog_uri'         => 'https://github.com/texpert/shrine-aws-lambda/CHANGELOG.md',
