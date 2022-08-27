@@ -37,7 +37,7 @@ RSpec/ExampleLength:
 RSpec/MultipleExpectations:
   Description: Checks if examples contain too many `expect` calls.
   Enabled: true
-  Max: 5
+  Max: 10
 
 RSpec/MultipleMemoizedHelpers:
   Description: Checks if example groups contain too many `let` and `subject` calls.
@@ -67,6 +67,7 @@ Style/StringLiterals:
 Metrics/AbcSize:
   # The ABC size is a calculated magnitude, so this number can be a Fixnum or
   # a Float.
+  CountRepeatedAttributes: false
   Max: 30
 
 Metrics/ClassLength:

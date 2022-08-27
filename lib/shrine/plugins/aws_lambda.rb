@@ -59,9 +59,12 @@ class Shrine
       module AttacherClassMethods
         # Loads the attacher from the data, and triggers its instance AWS Lambda
         # processing method. Intended to be used in a background job.
-        def lambda_process(data)
-          attacher = load(data)
-          attacher.lambda_process(data)
+        def lambda_process(attacher_class, record_class, record_id, name, file_data)
+          attacher_class = Object.const_get(attacher_class)
+          record         = Object.const_get(record_class).find(record_id) # if using Active Record
+
+          attacher = attacher_class.retrieve(model: record, name: name, file: file_data)
+          attacher.lambda_process
           attacher
         end
 
@@ -85,12 +88,28 @@ class Shrine
         # @return [false] if signature in received headers does't match locally computed AWS signature
         def lambda_authorize(headers, body)
           result = JSON.parse(body)
-          attacher = load(result.delete('context'))
+          context = result['context']
+
+          context_record = context['record']
+          record_class   = context_record[0]
+          record_id      = context_record[1]
+          record         = Object.const_get(record_class).find(record_id)
+          attacher_name  = context['name']
+          attacher       = record.__send__(:"#{attacher_name}_attacher")
+
+          return false unless signature_matched?(attacher, headers, body)
+
+          [attacher, result]
+        end
+
+        private
+
+        def signature_matched?(attacher, headers, body)
           incoming_auth_header = auth_header_hash(headers['Authorization'])
 
           signer = build_signer(
             incoming_auth_header['Credential'].split('/'),
-            JSON.parse(attacher.record.__send__(:"#{attacher.data_attribute}") || '{}').dig('metadata', 'key') || 'key',
+            JSON.parse(attacher.record.__send__(:"#{attacher.attribute}") || '{}').dig('metadata', 'key') || 'key',
             headers['x-amz-security-token']
           )
           signature = signer.sign_request(http_method: 'PUT',
@@ -98,12 +117,9 @@ class Shrine
                                           headers:     { 'X-Amz-Date' => headers['X-Amz-Date'] },
                                           body:        body)
           calculated_signature = auth_header_hash(signature.headers['authorization'])['Signature']
-          return false if incoming_auth_header['Signature'] != calculated_signature
 
-          [attacher, result]
+          incoming_auth_header['Signature'] == calculated_signature
         end
-
-        private
 
         def build_signer(headers, secret_access_key, security_token = nil)
           Aws::Sigv4::Signer.new(
@@ -141,8 +157,8 @@ class Shrine
         # errors. No more response analysis is performed, because Lambda is invoked asynchronously (note the
         # `invocation_type`: 'Event' in the `invoke` call). The results will be sent by Lambda by HTTP requests to
         # the specified `callbackUrl`.
-        def lambda_process(data)
-          cached_file = uploaded_file(data['attachment'])
+        def lambda_process
+          cached_file = uploaded_file(file)
           assembly = lambda_default_values
           assembly.merge!(store.lambda_process_versions(cached_file, context))
           function = assembly.delete(:function)
@@ -150,13 +166,16 @@ class Shrine
           raise Error, "Function #{function} not available on Lambda!" unless function_available?(function)
 
           prepare_assembly(assembly, cached_file, context)
-          assembly[:context] = data.except('attachment', 'action', 'phase')
+          assembly[:context] = { 'record'       => [record.class.name, record.id],
+                                 'name'         => name,
+                                 'shrine_class' => self.class.name }
           response = lambda_client.invoke(function_name:   function,
                                           invocation_type: 'Event',
                                           payload:         assembly.to_json)
           raise Error, "#{response.function_error}: #{response.payload.read}" if response.function_error
 
-          swap(cached_file) || _set(cached_file)
+          set(cached_file)
+          atomic_persist(cached_file)
         end
 
         # Receives the `result` hash after Lambda request was authorized. The result could contain an array of
@@ -164,7 +183,7 @@ class Shrine
         # attached file was just moved to the target storage bucket.
         #
         # Deletes the signing key, if it is present in the original file's metadata, converts the result to a JSON
-        # string, and writes this string into the `data_attribute` of the Shrine attacher's record.
+        # string, and writes this string into the `attribute` of the Shrine attacher's record.
         #
         # Chooses the `save_method` either for the ActiveRecord or for Sequel, and saves the record.
         # @param [Hash] result
@@ -179,7 +198,7 @@ class Shrine
                            result.to_json
                          end
 
-          record.__send__(:"#{data_attribute}=", attr_content)
+          record.__send__(:"#{attribute}=", attr_content)
           save_method = case record
                         when ActiveRecord::Base
                           :save
