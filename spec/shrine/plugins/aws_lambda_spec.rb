@@ -28,10 +28,6 @@ class LambdaUploader < Shrine
 end
 
 RSpec.describe Shrine::Plugins::AwsLambda do
-  let(:attachment_base_data) do
-    { 'record'       => %w[User 1], 'name' => 'avatar',
-      'shrine_class' => nil, 'action' => 'store', 'phase' => 'store' }
-  end
   let(:filename) { 'some_file.png' }
   let(:shrine) { Class.new(Shrine) }
   let(:settings) { Shrine::Plugins::AwsLambda::SETTINGS.dup }
@@ -117,17 +113,19 @@ RSpec.describe Shrine::Plugins::AwsLambda do
 
     describe '#lambda_process' do
       context 'when saving user with an attached avatar, the Attacher class method lambda_process is called' do
-        it 'loads the attacher and calls lambda_process on the attacher instance' do
+        it 'retrieves the attacher and calls lambda_process on the attacher instance' do
           user.avatar = FakeIO.new('file', filename: filename)
-          data = { 'attachment' => user.avatar_data }.merge!(attachment_base_data)
+          file_data = user.avatar
 
           allow(Shrine::Attacher).to receive(:lambda_process).and_call_original
-          allow(Shrine::Attacher).to receive(:load).and_call_original
-          allow_any_instance_of(Shrine::Attacher).to receive(:lambda_process)
+          allow(Shrine::Attacher).to receive(:retrieve).and_call_original
 
-          expect(Shrine::Attacher).to receive(:lambda_process).with(data)
-          expect(Shrine::Attacher).to receive(:load).with(data)
-          expect_any_instance_of(Shrine::Attacher).to receive(:lambda_process).with(data)
+          expect(Shrine::Attacher)
+            .to receive(:lambda_process).with(
+              'Shrine::Attacher', 'User', 1, :avatar, { 'id' => file_data.id, 'storage' => file_data.storage_key.to_s }
+            )
+          expect(Shrine::Attacher).to receive(:retrieve)
+          expect_any_instance_of(Shrine::Attacher).to receive(:lambda_process)
 
           user.save!
         end
@@ -162,10 +160,6 @@ RSpec.describe Shrine::Plugins::AwsLambda do
 
       context 'when signature in received headers matches locally computed AWS signature' do
         it 'returns the attacher and the hash of the parsed result from Lambda' do
-          shrine_context = JSON.parse(body).delete('context')
-
-          expect(Shrine::Attacher).to receive(:load).with(shrine_context).and_return(user.avatar_attacher)
-
           allow(Shrine::Attacher).to receive(:auth_header_hash).and_call_original
           expect(Shrine::Attacher)
             .to receive(:auth_header_hash).with(headers['Authorization']).and_return(auth_header)
@@ -184,7 +178,12 @@ RSpec.describe Shrine::Plugins::AwsLambda do
 
           result = Shrine::Attacher.lambda_authorize(headers, body)
 
-          expect(result).to eql([user.avatar_attacher, JSON.parse(body).except('context')])
+          expect(result).to be_kind_of(Array)
+          attacher_from_result = result[0]
+          expect(attacher_from_result).to be_kind_of(Shrine::Attacher)
+          expect(attacher_from_result.record).to be_kind_of(User)
+          expect(attacher_from_result.name).to be(:avatar)
+          expect(result[1]).to eql(JSON.parse(body))
         end
       end
 
@@ -220,6 +219,8 @@ RSpec.describe Shrine::Plugins::AwsLambda do
         allow_any_instance_of(Shrine::Plugins::AwsLambda::AttacherMethods)
           .to receive(:function_available?).and_return(true)
 
+        expect(LambdaUploader::Attacher).to receive(:retrieve).and_call_original
+
         expect_any_instance_of(LambdaUploader).to receive(:lambda_process_versions).and_call_original
         allow_any_instance_of(Shrine::Plugins::AwsLambda::AttacherMethods).to receive(:prepare_assembly)
         expect_any_instance_of(Shrine::Plugins::AwsLambda::AttacherMethods).to receive(:prepare_assembly)
@@ -234,7 +235,7 @@ RSpec.describe Shrine::Plugins::AwsLambda do
         user.save!
         user.reload.avatar_data
 
-        expect(user.avatar.storage_key).to eql('cache')
+        expect(user.avatar.storage_key).to be(:cache)
         expect(user.avatar.metadata['filename']).to eql(filename)
         expect(user.avatar.metadata['mime_type']).to eql('image/png')
       end

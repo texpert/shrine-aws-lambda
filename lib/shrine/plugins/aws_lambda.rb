@@ -95,8 +95,16 @@ class Shrine
           record_id      = context_record[1]
           record         = Object.const_get(record_class).find(record_id)
           attacher_name  = context['name']
-          attacher       = record.send(:"#{attacher_name}_attacher")
+          attacher       = record.__send__(:"#{attacher_name}_attacher")
 
+          return false unless signature_matched?(attacher, headers, body)
+
+          [attacher, result]
+        end
+
+        private
+
+        def signature_matched?(attacher, headers, body)
           incoming_auth_header = auth_header_hash(headers['Authorization'])
 
           signer = build_signer(
@@ -109,12 +117,9 @@ class Shrine
                                           headers:     { 'X-Amz-Date' => headers['X-Amz-Date'] },
                                           body:        body)
           calculated_signature = auth_header_hash(signature.headers['authorization'])['Signature']
-          return false if incoming_auth_header['Signature'] != calculated_signature
 
-          [attacher, result]
+          incoming_auth_header['Signature'] == calculated_signature
         end
-
-        private
 
         def build_signer(headers, secret_access_key, security_token = nil)
           Aws::Sigv4::Signer.new(
@@ -153,7 +158,7 @@ class Shrine
         # `invocation_type`: 'Event' in the `invoke` call). The results will be sent by Lambda by HTTP requests to
         # the specified `callbackUrl`.
         def lambda_process
-          cached_file = uploaded_file(self.file)
+          cached_file = uploaded_file(file)
           assembly = lambda_default_values
           assembly.merge!(store.lambda_process_versions(cached_file, context))
           function = assembly.delete(:function)
@@ -161,15 +166,14 @@ class Shrine
           raise Error, "Function #{function} not available on Lambda!" unless function_available?(function)
 
           prepare_assembly(assembly, cached_file, context)
-          assembly[:context] = { 'record' => [self.record.class.name, self.record.id],
-                                 'name' => self.name,
+          assembly[:context] = { 'record'       => [record.class.name, record.id],
+                                 'name'         => name,
                                  'shrine_class' => self.class.name }
           response = lambda_client.invoke(function_name:   function,
                                           invocation_type: 'Event',
                                           payload:         assembly.to_json)
           raise Error, "#{response.function_error}: #{response.payload.read}" if response.function_error
 
-          # swap(cached_file) || _set(cached_file)
           set(cached_file)
           atomic_persist(cached_file)
         end
