@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.0](https://github.com/texpert/shrine-aws-lambda/tree/0.2.0) (2022-08-28)
+
+[Full Changelog](https://github.com/texpert/shrine-aws-lambda/compare/v0.1.2...0.2.0)
+
+**Merged pull requests:**
+
+- Upgrade to work with Shrine version 3 [\#3](https://github.com/texpert/shrine-aws-lambda/pull/3) ([texpert](https://github.com/texpert))
+
 ## [v0.1.2](https://github.com/texpert/shrine-aws-lambda/tree/v0.1.2) (2022-07-03)
 
 [Full Changelog](https://github.com/texpert/shrine-aws-lambda/compare/88f53efc0436de444f438d36b8a831b4013f5778...v0.1.2)
