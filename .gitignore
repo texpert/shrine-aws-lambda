@@ -36,3 +36,4 @@ Gemfile.lock
 # JetBrains IDE
 .idea
 
+.DS_Store
