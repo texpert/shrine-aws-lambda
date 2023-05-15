@@ -236,7 +236,7 @@ class Shrine
         end
 
         def prepare_assembly(assembly, cached_file, context)
-          assembly[:path] = store.generate_location(cached_file, context)
+          assembly[:path] = store.generate_location(cached_file, metadata: cached_file.metadata, context: context)
           assembly[:storages].each do |s|
             upload_options = get_upload_options(cached_file, context, s)
             s[1][:upload_options] = upload_options if upload_options

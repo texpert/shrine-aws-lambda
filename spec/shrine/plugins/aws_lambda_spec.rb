@@ -222,8 +222,9 @@ RSpec.describe Shrine::Plugins::AwsLambda do
         expect(LambdaUploader::Attacher).to receive(:retrieve).and_call_original
 
         expect_any_instance_of(LambdaUploader).to receive(:lambda_process_versions).and_call_original
-        allow_any_instance_of(Shrine::Plugins::AwsLambda::AttacherMethods).to receive(:prepare_assembly)
-        expect_any_instance_of(Shrine::Plugins::AwsLambda::AttacherMethods).to receive(:prepare_assembly)
+        allow_any_instance_of(Shrine::Plugins::AwsLambda::AttacherMethods).to receive(:get_upload_options)
+        expect_any_instance_of(Shrine).to receive(:generate_location).and_call_original
+        expect_any_instance_of(Shrine).to receive(:basic_location)
 
         aws_lambda_client = Aws::Lambda::Client.new(stub_responses: true)
         allow_any_instance_of(Shrine::Plugins::AwsLambda::AttacherMethods)
