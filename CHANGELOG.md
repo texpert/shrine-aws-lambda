@@ -1,8 +1,17 @@
 # Changelog
 
-## [0.2.0](https://github.com/texpert/shrine-aws-lambda/tree/0.2.0) (2022-08-28)
+## [v0.2.1](https://github.com/texpert/shrine-aws-lambda/tree/v0.2.1) (2023-05-15)
 
-[Full Changelog](https://github.com/texpert/shrine-aws-lambda/compare/v0.1.2...0.2.0)
+[Full Changelog](https://github.com/texpert/shrine-aws-lambda/compare/v0.2.0...v0.2.1)
+
+**Merged pull requests:**
+
+- Fix generate\_location method call to be Shrine 3.x and Ruby 3.x compliant [\#5](https://github.com/texpert/shrine-aws-lambda/pull/5) ([texpert](https://github.com/texpert))
+- Bump asdf Ruby to 2.7.8, use bundler 2.3.26 [\#4](https://github.com/texpert/shrine-aws-lambda/pull/4) ([texpert](https://github.com/texpert))
+
+## [v0.2.0](https://github.com/texpert/shrine-aws-lambda/tree/v0.2.0) (2022-08-27)
+
+[Full Changelog](https://github.com/texpert/shrine-aws-lambda/compare/v0.1.2...v0.2.0)
 
 **Merged pull requests:**
 
@@ -15,15 +24,6 @@
 **Merged pull requests:**
 
 - Initial, compatible with shrine-lambda, release [\#1](https://github.com/texpert/shrine-aws-lambda/pull/1) ([texpert](https://github.com/texpert))
-
-## Changes:
-
-- **Breaking:** Change gem name to shrine-aws-lambda
-- **Breaking:** Change class name from Shrine::Plugins::Lambda to Shrine::Plugins::AwsLambda
-- **Breaking:** Change plugin registration symbol from `:lambda` to `:aws_lambda`
-
-- Add `.tools-version` file and specified Ruby 2.7.6 version
-- Add rubocop-rspec and rubocop-performane as development dependencies and fix the arised issues
 
 
 
